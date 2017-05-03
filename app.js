@@ -74,7 +74,7 @@ server.listen(port , function(){
 var CronJob = require('cron').CronJob;
 var Scheduler = require('./module/Scheduler.js');
 
-new CronJob('* 0-59/10 * * * *', function(){
+new CronJob('0 0-59/10 * * * *', function(){
     console.log(new Date(), 'cron job running');
     Scheduler.cronJob();
 }, null, true,"Asia/Kolkata");

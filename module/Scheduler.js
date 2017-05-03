@@ -21,6 +21,7 @@ const errorCodes = {
     },
 };
 
+// Intermediate URL before going to destinationURL
 function getMaskedDestination(targetUser, destinationURL) {
     return host
         + "/notification"
@@ -28,6 +29,7 @@ function getMaskedDestination(targetUser, destinationURL) {
         + "?dest=" + destinationURL
 }
 
+// To send the final notification
 function sendNotificationUtil(targetUser, message, destinationURL, cb) {
     request.post(
         'http://localhost:3001/sendPushNotif',
@@ -53,9 +55,11 @@ function sendNotification(targetUser, message, destinationURL, cb){
         
             if(!user.pushEnabled) return cb("Push not enabled");
             if(user.notificationSent["24"] >= user.notificationLimit["24"] || user.notificationSent["48"] >= user.notificationLimit["48"] ){
+                // schedule if limit is reached 
                 return schedule(targetUser, message, destinationURL, cb);
             }
 
+            // sending notification
             sendNotificationUtil(targetUser, message, destinationURL, function(error){
                 if(!error){
                     user.notificationSent["24"]++;
@@ -82,6 +86,7 @@ function schedule(targetUser, message, destinationURL, cb){
         
             if(!user.pushEnabled) return cb("Push not enabled");
             
+            // adding to notification queue
             user.notifications.push({
                 message: message,
                 destinationURL: destinationURL
@@ -107,21 +112,12 @@ function getMinuteID(minute){
     else return 50;
 }
 
-// function getTimeID() {
-//     var d = new Date();
-//     return "" + d.getHours() + "x" + getMinuteID(d.getMinutes());
-// }
-
-// function getTimeIndex(timeID){
-//     var l = timeID.split('x');
-//     return (Number(l[0]) * 6) + (Number(l[1])/10)
-// }
-
 function currentTimeIndex() {
     var d = new Date();
     return (d.getHours()*6) + (getMinuteID(d.getMinutes())/10)
 }
 
+// To check if a higher weight exists for remaining day.
 function nextGreaterExists(l, i) {
     var val = l[i];
     var len = l.length;
@@ -131,6 +127,7 @@ function nextGreaterExists(l, i) {
     return false;
 }
 
+// cron job for scheduler
 function cronJob() {
     
     var timeIndex = currentTimeIndex();
@@ -139,6 +136,7 @@ function cronJob() {
         
         async.eachSeries(users, function(user, callback) {
             
+            // getting max notifications it can get
             var n = user.notifications.length; 
             if (user.notificationLimit["24"]-user.notificationSent["24"] < n) {
                 n = user.notificationLimit["24"]-user.notificationSent["24"];
@@ -147,14 +145,14 @@ function cronJob() {
                 n = user.notificationLimit["48"]-user.notificationSent["48"];
             }
 
-            if(n == 0) {
+            if(n == 0) { // no notifications to be sent (limit reached)
                 user.toSend = false;
                 user.save(function(){
                     callback();
                 });
-            } else if() {
-                nextGreaterExists( user.timeWeights, timeIndex);
-            } else {
+            } else if(nextGreaterExists( user.timeWeights, timeIndex)) { // skip, greater weight exists
+                callback();
+            } else { // send notifications
                 var userID = user.ID;
                 async.eachSeries(user.notifications.slice(0,n), function(notif, cb){
                     sendNotificationUtil(
@@ -168,7 +166,7 @@ function cronJob() {
                     user.notificationSent["24"] += n;
                     user.notificationSent["48"] += n;
                     user.notifications = user.notifications.slice(n);
-                    if(user.notifications.length == 0) {
+                    if(user.notifications.length == 0) { // all notifications sent
                         user.toSend = false;
                     }
                     user.save(function(){
@@ -209,7 +207,5 @@ module.exports.errorCodes       = errorCodes;
 module.exports.sendNotification = sendNotification;
 module.exports.schedule         = schedule;
 module.exports.cronJob          = cronJob;
-// module.exports.getTimeID        = getTimeID;
-// module.exports.getTimeIndex     = getTimeIndex;
 module.exports.currentTimeIndex = currentTimeIndex;
 module.exports.resetLimits      = resetLimits;

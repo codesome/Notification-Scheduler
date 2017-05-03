@@ -8,27 +8,28 @@ router.get('/', function(req, res) {
     res.render('index');
 });
 
+// To add a notification to send or schedule
 router.post('/scheduleNotification', function(req, res){
     
     var data = req.body;
 
-    if( !data.targetUser) {
+    if( !data.targetUser) { // not target user specified
         console.log('Error', Scheduler.errorCodes.noUser);
         return res.send({"status":false, "error": Scheduler.errorCodes.noUser });    
-    } else if( !data.notificationType) {
+    } else if( !data.notificationType) { // no notification type specified
         console.log('Error', Scheduler.errorCodes.noType);
         return res.send({"status":false, "error": Scheduler.errorCodes.noType });    
-    } else if( !data.message) {
+    } else if( !data.message) { // no message specified
         console.log('Error', Scheduler.errorCodes.noMessage);
         return res.send({"status":false, "error": Scheduler.errorCodes.noMessage });    
-    } else if( !data.destinationURL) {
+    } else if( !data.destinationURL) { // no destination URL specified
         console.log('Error', Scheduler.errorCodes.noDestination);
         return res.send({"status":false, "error": Scheduler.errorCodes.noDestination });    
     }
 
     data.priority = data.priority || 2;
 
-    if( data.priority == 1 ) {
+    if( data.priority == 1 ) { // Send
     
         console.log("Notification requested to send",data);
     
@@ -45,7 +46,7 @@ router.post('/scheduleNotification', function(req, res){
             }
         );
 
-    } else {
+    } else { // Schedule
         
         console.log("Notification requested to schedule",data);
 
@@ -66,6 +67,7 @@ router.post('/scheduleNotification', function(req, res){
 
 }); 
 
+// Masked destination URL
 router.get('/notification/:user', function(req, res){
     var userID      = req.params.user;
     var destination = req.query.dest;
@@ -89,6 +91,7 @@ router.get('/notification/:user', function(req, res){
 
 });
 
+// To add dummy users
 router.get('/addUsers/:N', function(req, res){
     var N = Number(req.params.N) || 0;
     require('../dev').addDummyUsers(N, function(){

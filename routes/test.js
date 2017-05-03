@@ -4,8 +4,6 @@ var User          = require('../model/User.js');
 var Notifications = require('../model/Notifications.js');
 var request       = require('request');
 
-// var allNotifications = [];
-
 router.get('/', function(req, res) {
     User.find({},function(err, users){
         res.render('test', {
@@ -16,6 +14,7 @@ router.get('/', function(req, res) {
     });
 });
 
+// receives notification
 router.post('/sendPushNotif', function(req,res){
 
     console.log("Notification received " ,req.body);
@@ -25,12 +24,14 @@ router.post('/sendPushNotif', function(req,res){
 
 });
 
+// shows list of all received notifications
 router.get('/notif', function(req, res) {
     Notifications.find({}, function(err, allNotifications){
         res.render('allnotif', {n: allNotifications});
     });
 });
 
+// destination URL of notification
 router.get('/success/:user', function(req, res) {
     var u = req.params.user;
     res.send('Success for ' + u);
