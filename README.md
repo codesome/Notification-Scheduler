@@ -10,6 +10,10 @@ $ cd Notification-Scheduler/
 $ npm start
 ```
 
+To schedule/send a notification, send POST request to `http://localhost:3000/scheduleNotification` with proper data in the body.
+
+The scheduler sends notification to `http://localhost:3001/sendPushNotif` when it has to be sent.
+
 ### Testing the scheduler
 
 First start the test server. Run the below command in same directory.
