@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>All Notifications</title>
+</head>
+<body>
+
+<ul>
+	<% for(var i=0; i<n.length; i++) { %>
+  	<li><%=i+1%>. User:<%=n[i].targetUser%> &nbsp; <a href="<%=n[i].destinationURL%>" target="_blank"><%=n[i].message%></a></li>
+  	<% } %>
+</ul>
+
+</body>
+</html>

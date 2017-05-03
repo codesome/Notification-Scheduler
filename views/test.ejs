@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Testing</title>
+    <link rel='stylesheet' href='/css/style.css' />
+  </head>
+  <body>
+  <button id="sch-all">Schedule 1 for all (total = <%=users.length%>)</button><br>
+  <button id="send-all">Send 1 to all (total = <%=users.length%>)</button>
+
+  <ul>
+  	
+  	<% for(var i=0; i<users.length; i++) { %>
+  	<li> <%=users[i]%> &emsp; <button class="notify" data-user="<%=users[i]%>">Schedule Now</button><button class="notify-now" data-user="<%=users[i]%>">Send now</button> </li>
+  	<% } %>
+
+  </ul>
+
+    <script type="text/javascript" src="/js/jquery.js"></script>
+    <script type="text/javascript" src="/js/external_ajax.js"></script>
+    <script type="text/javascript">
+    	
+    	var count = 0;
+    	
+    	$(document).ready(function(){
+
+
+            $(".notify").unbind().click(function(){
+                var $This = $(this);
+
+                $This.prop('disabled', true);
+                $This.html('Scheduling');
+
+                var user = $This.attr('data-user');
+
+                $.post("http://localhost:3000/scheduleNotification", {
+                    targetUser: user,
+                    notificationType: 'push',
+                    message: "Message " + (++count) + ", now for " + user,
+                    destinationURL: "http://localhost:3001/success/"+user,
+                    priority: 2
+                }, function(data){
+                    $This.prop('disabled', false);
+                    $This.html('Schedule Now');                 
+                    if(!data.status) {
+                        alert('Failed');
+                    }
+                });
+
+            });
+
+            $(".notify-now").unbind().click(function(){
+                var $This = $(this);
+
+                $This.prop('disabled', true);
+                $This.html('Sending');
+
+                var user = $This.attr('data-user');
+
+                $.post("http://localhost:3000/scheduleNotification", {
+                    targetUser: user,
+                    notificationType: 'push',
+                    message: "Message " + (++count) + ", now for " + user,
+                    destinationURL: "http://localhost:3001/success/"+user,
+                    priority: 1
+                }, function(data){
+                    $This.prop('disabled', false);
+                    $This.html('Send Now');                 
+                    if(!data.status) {
+                        alert('Failed');
+                    }
+                });
+
+            });
+
+            $("#sch-all").click(function(){
+                $(this).prop('disabled',true);
+                $('.notify').each(function(){
+                    $(this).click();
+                });
+                $(this).prop('disabled',false);
+            });
+
+            $("#send-all").click(function(){
+                $(this).prop('disabled',true);
+                $('.notify-now').each(function(){
+                    $(this).click();
+                });
+                $(this).prop('disabled',false);
+            });
+
+        });
+
+    </script>
+  </body>
+</html>
