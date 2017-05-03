@@ -66,3 +66,18 @@ This is used to know the active period of the user.
   * Else, the weight corresponding to current time is compared with weights from current index till last index 143 in the `timeWeights` of the user.
   * If there is no higher weight, then all the remaining notifications is sent till the limit is reached. If there was a higher weight, then sending of notification is skipped in the current cron job.
 * Using the weights for time indices, scheduler selects most appropriate time to send notifications.
+
+## Files
+
+### Scheduler
+* `module/Scheduler.js`: Contains code for sending and scheduling notification and also the cron job.
+* `model/User.js`: Database collection structure.
+* `routes/index.js`: Route handler for scheduler.
+* `dev.js`: Code to add dummy users.
+* `app.js`: Starting point of the server.
+
+### Testing server
+* `routes/test.js`: Route handler for testing server.
+* `model/Notifications.js`: Database collection structure.
+* `views/*`: HTML (ejs) files for testing.
+* `test.js`: Starting point of the server.
